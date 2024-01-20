@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: images/node
+    container_name: app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ./app:/usr/src/app
+    networks:
+      - node-network
+    depends_on:
+      - db
+  
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - node-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=challenge
+      - MYSQL_ROOT_PASSWORD=fullcycle
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge

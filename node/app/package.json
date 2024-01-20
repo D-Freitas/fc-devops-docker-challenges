@@ -1,0 +1,13 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "index.js": "^0.0.3",
+    "mysql": "^2.18.1",
+    "node": "^21.2.0"
+  }
+}
