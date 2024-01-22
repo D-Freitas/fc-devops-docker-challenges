@@ -3,13 +3,14 @@ services:
     build:
       context: images/node
     container_name: app
-    command: sh -c "npm install && npm start"
+    entrypoint: sh -c "npm install && npm start"
     volumes:
       - ./app:/usr/src/app
     networks:
       - node-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   
   nginx:
     image: nginx:latest
@@ -23,15 +24,20 @@ services:
       - app
 
   db:
-    image: mysql:5.7
-    command: --innodb-use-native-aio=0
+    image: mysql:8.0.32
     container_name: db
     restart: always
     volumes:
       - ./mysql:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - MYSQL_DATABASE=challenge
       - MYSQL_ROOT_PASSWORD=fullcycle
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
     networks:
       - node-network
 

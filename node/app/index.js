@@ -1,5 +1,5 @@
 const http = require('http')
-const mysql = require('mysql')
+const mysql = require('mysql2')
 const { promisify } = require('util')
 
 const connection = mysql.createConnection({
@@ -13,13 +13,6 @@ const queryAsync = promisify(connection.query).bind(connection)
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && req.url === '/') {
-      await queryAsync(`
-        CREATE TABLE IF NOT EXISTS people (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          username VARCHAR(255) NOT NULL
-        )
-      `)
-
       await queryAsync("INSERT INTO people (username) VALUES ('full_cycle')")
       const results = await queryAsync('SELECT username FROM people')
       const userListHTML = renderUsersPage(results)
@@ -44,6 +37,4 @@ const renderUsersPage = (users) => {
 }
 
 const PORT = process.env.PORT || 3000
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+server.listen(PORT)
